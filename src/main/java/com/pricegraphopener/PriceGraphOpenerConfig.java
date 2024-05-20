@@ -9,7 +9,7 @@ public interface PriceGraphOpenerConfig extends Config
 {
     @ConfigItem(
         keyName = "ge-tracker",
-        name = "Ge-Tracker",
+        name = "GE Tracker",
         description = "Display option to open ge-tracker.net"
     )
     default boolean geTracker() { return true; }
@@ -22,7 +22,7 @@ public interface PriceGraphOpenerConfig extends Config
     default boolean osrsWiki() { return true; }
 
     @ConfigItem(
-        keyName = "rs-wiki",
+        keyName = "rs-grandexchange",
         name = "OSRS Grand Exchange",
         description = "Display option to open the runescape.com GE page"
     )
@@ -31,7 +31,14 @@ public interface PriceGraphOpenerConfig extends Config
     @ConfigItem(
         keyName = "folding",
         name = "Combine menu options",
-        description = "If more than one above option is selected, combine the menu options"
+        description = "Collect menu options into a submenu when clicking on an item."
     )
     default boolean folding() { return true; }
+
+    @ConfigItem(
+        keyName = "shift-click",
+        name = "Shift Click for Inventory",
+        description = "Only show the price check on right click if shift is held when outside of a bank or other menu."
+    )
+    default boolean shiftInventory() { return true; }
 }
