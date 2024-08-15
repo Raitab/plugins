@@ -121,7 +121,7 @@ public class PriceGraphOpenerPlugin extends Plugin {
     }
 
     MenuEntry createMenuEntry(String title, int item, Menu parentMenu, MenuAction type) {
-        return parentMenu.createMenuEntry(1)
+        return parentMenu.createMenuEntry(-1)
             .setOption(title)
             .setTarget(ColorUtil.prependColorTag(
                 itemManager.getItemComposition(item).getMembersName(), JagexColors.MENU_TARGET))
