@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.KeyCode;
+import net.runelite.api.Menu;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.NPC;
@@ -62,28 +63,27 @@ public class PriceGraphOpenerPlugin extends Plugin {
             Widget container = client.getWidget(event.getActionParam1());
             Widget item = container.getChild(event.getActionParam0());
             String text = "Price History";
-            MenuEntry menuEntry = null;
 
             boolean itemIsTradeable = itemManager.getItemComposition(item.getItemId()).isTradeable();
             final Collection<ItemMapping> mappedItems = itemIsTradeable ? Collections.emptyList() : ItemMapping.map(item.getItemId());
             boolean itemHasComponents = mappedItems != null && !mappedItems.isEmpty();
 
+            Menu parentMenu = client.getMenu();
             if (config.folding() && (itemIsTradeable || (!itemIsTradeable && itemHasComponents))) {
-                menuEntry = client.createMenuEntry(1)
+                parentMenu = client.getMenu().createMenuEntry(-1)
                     .setOption(text)
                     .setTarget(ColorUtil.prependColorTag(item.getName(), JagexColors.MENU_TARGET))
-                    .setType(MenuAction.RUNELITE_SUBMENU);
+                    .createSubMenu();
             }
             if (!itemIsTradeable) {
                 if (mappedItems == null) {
                     return;
                 }
                 for (ItemMapping mappedItem : mappedItems) {
-                    createMenusForTradeableItems(mappedItem.getTradeableItem(), menuEntry);
+                    createMenuEntriesForTradeableItems(parentMenu, mappedItem.getTradeableItem());
                 }
-                ;
             } else {
-                createMenusForTradeableItems(item.getItemId(), menuEntry);
+                createMenuEntriesForTradeableItems(parentMenu, item.getItemId());
             }
         }
     }
@@ -102,31 +102,30 @@ public class PriceGraphOpenerPlugin extends Plugin {
                 && event.getOption().equals("Examine");
     }
 
-    void createMenusForTradeableItems(int itemId, MenuEntry parentMenuEntry) {
+    void createMenuEntriesForTradeableItems(Menu parentMenu, int itemId) {
         if (config.geTracker()) {
-            createMenuEntry(GE_TRACKER_TITLE, itemId, parentMenuEntry, MenuAction.RUNELITE)
+            createMenuEntry(GE_TRACKER_TITLE, itemId, parentMenu, MenuAction.RUNELITE)
                 .onClick(e -> LinkBrowser.browse(
                     GE_TRACKER_BASE.newBuilder().addPathSegment(String.valueOf(e.getParam0())).build().toString()));
         }
         if (config.osrsWiki()) {
-            createMenuEntry(RS_WIKI_TITLE, itemId, parentMenuEntry, MenuAction.RUNELITE)
+            createMenuEntry(RS_WIKI_TITLE, itemId, parentMenu, MenuAction.RUNELITE)
                 .onClick(e -> LinkBrowser.browse(
                     RS_WIKI_BASE.newBuilder().addPathSegment(String.valueOf(e.getParam0())).build().toString()));
         }
         if (config.osrsGrandExchange()) {
-            createMenuEntry(RS_GE_TITLE, itemId, parentMenuEntry, MenuAction.RUNELITE)
+            createMenuEntry(RS_GE_TITLE, itemId, parentMenu, MenuAction.RUNELITE)
                 .onClick(e -> LinkBrowser.browse(
                     RS_GE_BASE.newBuilder().addQueryParameter("obj", String.valueOf(e.getParam0())).build().toString()));
         }
     }
 
-    MenuEntry createMenuEntry(String title, int item, MenuEntry parentMenuEntry, MenuAction type) {
-        return client.createMenuEntry(1)
+    MenuEntry createMenuEntry(String title, int item, Menu parentMenu, MenuAction type) {
+        return parentMenu.createMenuEntry(1)
             .setOption(title)
             .setTarget(ColorUtil.prependColorTag(
                 itemManager.getItemComposition(item).getMembersName(), JagexColors.MENU_TARGET))
             .setParam0(item)
-            .setParent(parentMenuEntry)
             .setType(type);
     }
 
@@ -160,7 +159,7 @@ public class PriceGraphOpenerPlugin extends Plugin {
     void addSearchMenuEntries(MenuEntryAdded event) {
         int idx = -1;
         if (config.geTracker()) {
-            client.createMenuEntry(idx--)
+            client.getMenu().createMenuEntry(idx--)
                 .setOption("Search " + GE_TRACKER_TITLE)
                 .setTarget(ColorUtil.prependColorTag(event.getTarget(), JagexColors.MENU_TARGET))
                 .setIdentifier(event.getIdentifier())
@@ -174,7 +173,7 @@ public class PriceGraphOpenerPlugin extends Plugin {
                 });
         }
         if (config.osrsWiki()) {
-            client.createMenuEntry(idx--)
+            client.getMenu().createMenuEntry(idx--)
                 .setOption("Search " + RS_WIKI_TITLE)
                 .setTarget(ColorUtil.prependColorTag(event.getTarget(), JagexColors.MENU_TARGET))
                 .setIdentifier(event.getIdentifier())
@@ -188,7 +187,7 @@ public class PriceGraphOpenerPlugin extends Plugin {
                 });
         }
         if (config.osrsGrandExchange()) {
-            client.createMenuEntry(idx--)
+            client.getMenu().createMenuEntry(idx--)
                 .setOption("Search " + RS_GE_TITLE)
                 .setTarget(ColorUtil.prependColorTag(event.getTarget(), JagexColors.MENU_TARGET))
                 .setIdentifier(event.getIdentifier())
@@ -202,8 +201,6 @@ public class PriceGraphOpenerPlugin extends Plugin {
                 });
         }
     }
-
-
 
     @Provides
     PriceGraphOpenerConfig provideConfig(ConfigManager configManager)
