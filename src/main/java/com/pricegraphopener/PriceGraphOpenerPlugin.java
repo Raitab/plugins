@@ -27,7 +27,6 @@ import net.runelite.client.util.LinkBrowser;
 import okhttp3.HttpUrl;
 
 import java.util.Collection;
-import java.util.Collections;
 
 @Slf4j
 @PluginDescriptor(
@@ -65,8 +64,13 @@ public class PriceGraphOpenerPlugin extends Plugin {
             String text = "Price History";
 
             boolean itemIsTradeable = itemManager.getItemComposition(item.getItemId()).isTradeable();
-            final Collection<ItemMapping> mappedItems = itemIsTradeable ? Collections.emptyList() : ItemMapping.map(item.getItemId());
-            boolean itemHasComponents = mappedItems != null && !mappedItems.isEmpty();
+            final Collection<ItemMapping> mappedItems = ItemMapping.map(item.getItemId());
+            final Collection<IrreversibleItemMapping> irreversibleMappedItems = IrreversibleItemMapping.map(item.getItemId());
+            boolean itemHasComponents = (mappedItems != null && !mappedItems.isEmpty())
+                || (config.showIrreversible() && irreversibleMappedItems != null && !irreversibleMappedItems.isEmpty());
+
+            // could add a check for the length of the mappedItems + irreversibleMappedItems (if showing) and then
+            // not creating a submenu if there's only one... also check if tradeable.
 
             Menu parentMenu = client.getMenu();
             if (config.folding() && (itemIsTradeable || (!itemIsTradeable && itemHasComponents))) {
@@ -75,14 +79,17 @@ public class PriceGraphOpenerPlugin extends Plugin {
                     .setTarget(ColorUtil.prependColorTag(item.getName(), JagexColors.MENU_TARGET))
                     .createSubMenu();
             }
-            if (!itemIsTradeable) {
-                if (mappedItems == null) {
-                    return;
+            if (irreversibleMappedItems != null && config.showIrreversible()) {
+                for (IrreversibleItemMapping mappedItem : irreversibleMappedItems) {
+                    createMenuEntriesForTradeableItems(parentMenu, mappedItem.getTradeableItem());
                 }
+            }
+            if (mappedItems != null) {
                 for (ItemMapping mappedItem : mappedItems) {
                     createMenuEntriesForTradeableItems(parentMenu, mappedItem.getTradeableItem());
                 }
-            } else {
+            }
+            if (itemIsTradeable) {
                 createMenuEntriesForTradeableItems(parentMenu, item.getItemId());
             }
         }

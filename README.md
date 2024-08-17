@@ -15,6 +15,9 @@ Does not affect the Grand Exchange Clerk nor booth.
 * `OSRS Grand Exchange` - Include menu option to open directly in the OSRS Grand Exchange website.
 * `OSRS Wiki` - Include menu option to open directly in the OSRS Prices Wiki website.
 * `Shift Click for Inventory` - Require Shift Click when not in a menu (bank, GE, store, etc.).
+* `Show irreversible components` - Shows components of tradeable and untradeable items that can't be reverted into their components.
+  * Items are maintained by this plugin, so if an item was missed or new items have come out, be sure to suggest them. 
+  * Items are expected to have some amount of value. Mapping Runite bars to everything rune would be unwieldy. 
 
 ## Features
 * Opens directly to an item's page in one of the above websites.
