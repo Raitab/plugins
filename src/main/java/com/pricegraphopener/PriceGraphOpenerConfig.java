@@ -41,4 +41,12 @@ public interface PriceGraphOpenerConfig extends Config
         description = "Only show the price check on right click if shift is held when outside of a bank or other menu."
     )
     default boolean shiftInventory() { return true; }
+
+    @ConfigItem(
+        keyName = "show-irreversible",
+        name = "Show irreversible components",
+        description = "Add extra menu entries for certain items that can't be reverted into tradeable parts. "
+            + "Note: Best with Combine menu options checked"
+    )
+    default boolean showIrreversible() { return true; }
 }
